@@ -12,12 +12,18 @@ W, H = config.OUT_W, config.OUT_H
 
 # ASS colours are &HBBGGRR. `size` is the ASS font size (line height); _Font turns it into real pixels.
 STYLES = {
+    "beast": {"label": "MrBeast (Viral Pop)", "font": "Archivo Black", "size": 136, "base": "FFFFFF", "active": "00E6FF",
+              "strong": "66FF00", "outline": 8, "shadow": 4, "pop": 120, "upper": True, "per": 2},
+    "hormozi": {"label": "Hormozi (Retention)", "font": "Poppins ExtraBold", "size": 140, "base": "FFFFFF", "active": "66FF00",
+                "strong": "00E6FF", "outline": 8, "shadow": 4, "pop": 122, "upper": True, "per": 2},
     "bounce": {"label": "Bounce", "font": "Poppins ExtraBold", "size": 132, "base": "FFFFFF", "active": "00F0FF",
-               "strong": "FFFFFF", "outline": 7, "pop": 112, "upper": True, "per": 3},
+               "strong": "66FF00", "outline": 7, "shadow": 3, "pop": 114, "upper": True, "per": 3},
     "hype": {"label": "Hype", "font": "Anton", "size": 152, "base": "FFFFFF", "active": "3C3CFF",
-             "strong": "00D7FF", "outline": 7, "pop": 114, "upper": True, "per": 2},
-    "clean": {"label": "Clean", "font": "Poppins ExtraBold", "size": 100, "base": "FFFFFF", "active": "6BD7FF",
-              "strong": "FFFFFF", "outline": 5, "pop": 106, "upper": False, "per": 4},
+             "strong": "00D7FF", "outline": 8, "shadow": 4, "pop": 116, "upper": True, "per": 2},
+    "neon": {"label": "Cyber Neon", "font": "Poppins ExtraBold", "size": 130, "base": "FFFFFF", "active": "852AFF",
+             "strong": "FFF000", "outline": 7, "shadow": 3, "pop": 115, "upper": True, "per": 3},
+    "clean": {"label": "Clean", "font": "Poppins ExtraBold", "size": 102, "base": "FFFFFF", "active": "6BD7FF",
+              "strong": "FFFFFF", "outline": 5, "shadow": 2, "pop": 106, "upper": False, "per": 4},
 }
 HOOK = {"font": "Poppins ExtraBold", "size": 96, "ink": "14100E", "box": "FFFFFF", "pad_x": 36, "pad_y": 22, "radius": 26,
         "max_w": 900}
@@ -147,11 +153,14 @@ def _hook_events(hook, dur, y):
            f"l {n(x1)} {n(y1 - r)} b {n(x1)} {n(y1)} {n(x1)} {n(y1)} {n(x1 - r)} {n(y1)} "
            f"l {n(x0 + r)} {n(y1)} b {n(x0)} {n(y1)} {n(x0)} {n(y1)} {n(x0)} {n(y1 - r)} "
            f"l {n(x0)} {n(y0 + r)} b {n(x0)} {n(y0)} {n(x0)} {n(y0)} {n(x0 + r)} {n(y0)}")
-    span = f"{_ts(0)},{_ts(dur)}"
-    ev = [f"Dialogue: 3,{span},Hook,,0,0,0,,{{\\an7\\pos(0,0)\\fad(160,0)\\c&H{HOOK['box']}&\\p1}}{box}{{\\p0}}"]
+    h_len = min(dur, max(3.5, min(5.0, dur * 0.3))) if dur > 6.0 else dur
+    span = f"{_ts(0)},{_ts(h_len)}"
+    fad_out = 250 if h_len < dur - 0.2 else 0
+    anim = "\\t(0,120,\\fscx105\\fscy105)\\t(120,240,\\fscx100\\fscy100)"
+    ev = [f"Dialogue: 3,{span},Hook,,0,0,0,,{{\\an7\\pos(0,0)\\fad(180,{fad_out})\\c&H{HOOK['box']}&\\p1}}{box}{{\\p0}}"]
     for i, line in enumerate(lines):
         cy = y - line_h * (len(lines) - 1) / 2 + i * line_h - f.cap_shift(size)
-        ev.append(f"Dialogue: 4,{span},Hook,,0,0,0,,{{\\an5\\pos({W // 2},{cy:.0f})\\fad(160,0)\\fs{size}}}{line}")
+        ev.append(f"Dialogue: 4,{span},Hook,,0,0,0,,{{\\an5\\pos({W // 2},{cy:.0f})\\fad(180,{fad_out}){anim}\\fs{size}}}{line}")
     return ev
 
 
@@ -168,8 +177,8 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,{st['font']},{st['size']},&H00{st['base']},&H00{st['base']},&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,{st['outline']},0,5,0,0,0,1
-Style: Hook,{HOOK['font']},{HOOK['size']},&H00{HOOK['ink']},&H00{HOOK['ink']},&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,5,0,0,0,1
+Style: Cap,{st['font']},{st['size']},&H00{st['base']},&H00{st['base']},&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,{st['outline']},{st.get('shadow', 3)},5,0,0,0,1
+Style: Hook,{HOOK['font']},{HOOK['size']},&H00{HOOK['ink']},&H00{HOOK['ink']},&H00000000,&H60000000,0,0,0,0,100,100,0,0,1,0,3,5,0,0,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -228,12 +237,14 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 def _filter(layout, fg_h):
+    grade = "unsharp=5:5:0.6:5:5:0.0,eq=contrast=1.04:saturation=1.12:brightness=0.01"
     if layout == "crop":
-        return f"[0:v]fps={config.OUT_FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1[v0];"
-    return (f"[0:v]fps={config.OUT_FPS},split=2[a][b];"
-            f"[a]scale=270:480:force_original_aspect_ratio=increase,crop=270:480,boxblur=6:2,"
-            f"scale={W}:{H},eq=brightness=-0.14:saturation=1.15[bg];"
-            f"[b]scale={W}:{fg_h}:force_original_aspect_ratio=increase,crop={W}:{fg_h}[fg];"
+        return f"[0:v]setpts=PTS-STARTPTS,fps={config.OUT_FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},{grade},setsar=1[v0];"
+    return (f"[0:v]setpts=PTS-STARTPTS,fps={config.OUT_FPS},split=2[a][b];"
+            f"[a]scale=270:480:force_original_aspect_ratio=increase,crop=270:480,boxblur=12:3,"
+            f"scale={W}:{H},eq=brightness=-0.22:saturation=1.25[bg];"
+            f"[b]scale={W}:{fg_h}:force_original_aspect_ratio=increase,crop={W}:{fg_h},"
+            f"{grade},drawbox=x=0:y=0:w={W}:h={fg_h}:color=white@0.22:t=2[fg];"
             f"[bg][fg]overlay=0:(H-h)/2,setsar=1[v0];")
 
 
@@ -261,13 +272,26 @@ def render_clip(src: Path, out_dir: Path, name: str, clip: dict, words: list, sr
 
 def _render_in(work: Path, src: Path, out_dir: Path, name: str, start, end, layout, fg_h, ass: str) -> dict:
     global _qsv_ok
+    dur = max(0.1, end - start)
+    fade_in_v = min(0.12, dur / 10)
+    fade_out_v = min(0.25, dur / 8)
+    fade_in_a = min(0.08, dur / 10)
+    fade_out_a = min(0.25, dur / 8)
+    fade_out_v_st = max(0.0, dur - fade_out_v)
+    fade_out_a_st = max(0.0, dur - fade_out_a)
+
     (work / f"{name}.ass").write_text(ass, encoding="utf-8")
     (work / "f").mkdir()
     for f in config.FONTS_DIR.glob("*.ttf"):
         shutil.copyfile(f, work / "f" / f.name)
-    fc = _filter(layout, fg_h) + f"[v0]ass={name}.ass:fontsdir=f[v]"
-    base = ["ffmpeg", "-y", "-v", "error", "-ss", f"{start:.2f}", "-t", f"{end - start:.2f}", "-i", str(src),
-            "-filter_complex", fc, "-map", "[v]", "-map", "0:a:0", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+    fc = (_filter(layout, fg_h) +
+          f"[v0]ass={name}.ass:fontsdir=f[v_raw];"
+          f"[v_raw]fade=t=in:st=0:d={fade_in_v:.2f},fade=t=out:st={fade_out_v_st:.2f}:d={fade_out_v:.2f}[v]")
+    af = (f"asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11,"
+          f"afade=t=in:st=0:d={fade_in_a:.2f}:curve=hsin,"
+          f"afade=t=out:st={fade_out_a_st:.2f}:d={fade_out_a:.2f}:curve=hsin")
+    base = ["ffmpeg", "-y", "-v", "error", "-ss", f"{start:.2f}", "-t", f"{dur:.2f}", "-i", str(src),
+            "-filter_complex", fc, "-map", "[v]", "-map", "0:a:0", "-af", af,
             "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-movflags", "+faststart", "-pix_fmt"]
     encoders = []
     if _qsv_ok is not False:

@@ -41,7 +41,8 @@ def _places() -> list:
         if env("USERPROFILE"):
             out += [Path(env("USERPROFILE")) / "scoop" / "shims", Path(env("USERPROFILE")) / "ffmpeg" / "bin"]
     else:
-        out += [Path("/opt/homebrew/bin"), Path("/usr/local/bin"), Path("/usr/bin"), Path("/snap/bin")]
+        out += [Path("/opt/homebrew/opt/ffmpeg-full/bin"), Path("/usr/local/opt/ffmpeg-full/bin"),
+                Path("/opt/homebrew/bin"), Path("/usr/local/bin"), Path("/usr/bin"), Path("/snap/bin")]
     return out
 
 
@@ -49,6 +50,8 @@ def setup() -> list:
     """Make ffmpeg and ffprobe reachable for everything PeakCut runs. Returns the ones that could not be found."""
     exe = ".exe" if sys.platform == "win32" else ""
     missing = []
+    if os.environ.get("PEAKCUT_FFMPEG_DIR"):
+        os.environ["PATH"] = os.environ["PEAKCUT_FFMPEG_DIR"] + os.pathsep + os.environ.get("PATH", "")
     for name in NEEDED:
         if shutil.which(name):
             continue
