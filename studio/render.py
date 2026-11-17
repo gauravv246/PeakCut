@@ -273,11 +273,9 @@ def render_clip(src: Path, out_dir: Path, name: str, clip: dict, words: list, sr
 def _render_in(work: Path, src: Path, out_dir: Path, name: str, start, end, layout, fg_h, ass: str) -> dict:
     global _qsv_ok
     dur = max(0.1, end - start)
-    fade_in_v = min(0.12, dur / 10)
-    fade_out_v = min(0.25, dur / 8)
-    fade_in_a = min(0.08, dur / 10)
-    fade_out_a = min(0.25, dur / 8)
-    fade_out_v_st = max(0.0, dur - fade_out_v)
+    fade_in_v = min(0.10, dur / 10)
+    fade_in_a = min(0.06, dur / 10)
+    fade_out_a = min(0.06, dur / 10)
     fade_out_a_st = max(0.0, dur - fade_out_a)
 
     (work / f"{name}.ass").write_text(ass, encoding="utf-8")
@@ -286,7 +284,7 @@ def _render_in(work: Path, src: Path, out_dir: Path, name: str, start, end, layo
         shutil.copyfile(f, work / "f" / f.name)
     fc = (_filter(layout, fg_h) +
           f"[v0]ass={name}.ass:fontsdir=f[v_raw];"
-          f"[v_raw]fade=t=in:st=0:d={fade_in_v:.2f},fade=t=out:st={fade_out_v_st:.2f}:d={fade_out_v:.2f}[v]")
+          f"[v_raw]fade=t=in:st=0:d={fade_in_v:.2f}[v]")
     af = (f"asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11,"
           f"afade=t=in:st=0:d={fade_in_a:.2f}:curve=hsin,"
           f"afade=t=out:st={fade_out_a_st:.2f}:d={fade_out_a:.2f}:curve=hsin")
